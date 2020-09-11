@@ -1,0 +1,14 @@
+<RCC>
+    <qresource prefix="/">
+        <file>v_cube.glsl</file>
+        <file>f_cube.glsl</file>
+        <file>v_coordinate_line.glsl</file>
+        <file>f_coordinate_line.glsl</file>
+        <file>v_plane.glsl</file>
+        <file>f_plane.glsl</file>
+        <file>v_gizmo.glsl</file>
+        <file>f_gizmo.glsl</file>
+        <file>v_grid.glsl</file>
+        <file>f_grid.glsl</file>
+    </qresource>
+</RCC>
