@@ -11,7 +11,6 @@ public:
     ~GridGeo();
 
     void drawGeo(QMatrix4x4 projection,QMatrix4x4 view) override;
-    void setDensity(GLfloat density);
 };
 
 #endif // GRIDGEO_H

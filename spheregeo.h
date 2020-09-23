@@ -11,7 +11,6 @@ public:
     ~SphereGeo();
 
     void drawGeo(QMatrix4x4 projection,QMatrix4x4 view) override;
-    void setDensity(GLfloat density);
 };
 
 #endif // SPHEREGEO_H

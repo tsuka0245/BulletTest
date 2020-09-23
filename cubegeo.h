@@ -11,7 +11,6 @@ public:
     ~CubeGeo();
 
     void drawGeo(QMatrix4x4 projection,QMatrix4x4 view) override;
-    void setDensity(GLfloat density);
 };
 
 #endif // CUBEGEO_H

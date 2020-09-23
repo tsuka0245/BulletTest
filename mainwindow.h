@@ -22,6 +22,7 @@ private slots:
     void on_AddGoal_clicked();
 
     void show_attrib();
+    void on_geo_name_editingFinished();
     void on_pos_x_editingFinished();
     void on_pos_y_editingFinished();
     void on_pos_z_editingFinished();
@@ -43,11 +44,21 @@ private slots:
 
     void on_check_static_stateChanged(int arg1);
 
+    void on_p2p_con_select_geo1_clicked();
+    void on_p2p_con_select_geo2_clicked();
+    void on_p2p_con_apply_clicked();
+
     void on_Run_clicked();
     void on_Stop_clicked();
 
 
+
+
+
 private:
     Ui::mainwindow *ui;
+
+    bool m_constraint1 = false;
+    bool m_constraint2 = false;
 };
 #endif // MAINWINDOW_H

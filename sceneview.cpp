@@ -41,6 +41,13 @@ SceneView::~SceneView()
     //clear scene data
     scene.clear();
 
+    //delete constraint
+    for(int i = m_dynamicsWorld->getNumConstraints()-1; i>=0 ;i--){
+      btTypedConstraint* constraint = m_dynamicsWorld->getConstraint(i);
+      m_dynamicsWorld->removeConstraint(constraint);
+      delete constraint;
+    }
+
     //clear collision shapes ary
     collisionShapes.clear();
 
@@ -65,6 +72,10 @@ void SceneView::addGeo(GLuint type,QVector3D pos,QVector3D rot,QVector3D scale,b
             collisionShapes.push_back(geo->getCollisionShape());
             m_dynamicsWorld->addRigidBody(geo->getRigidBody());
 
+            GLuint id = scene.size()-m_constraints.size();
+            QString name = "geo" + QString::number(id);
+            geo->setName(name);
+            geo->setGeoID(id);
             scene.append(geo);
             break;
         }
@@ -76,6 +87,10 @@ void SceneView::addGeo(GLuint type,QVector3D pos,QVector3D rot,QVector3D scale,b
             collisionShapes.push_back(geo->getCollisionShape());
             m_dynamicsWorld->addRigidBody(geo->getRigidBody());
 
+            GLuint id = scene.size()-m_constraints.size();
+            QString name = "geo" + QString::number(id);
+            geo->setName(name);
+            geo->setGeoID(id);
             scene.append(geo);
             break;
         }
@@ -87,6 +102,10 @@ void SceneView::addGeo(GLuint type,QVector3D pos,QVector3D rot,QVector3D scale,b
             collisionShapes.push_back(geo->getCollisionShape());
             m_dynamicsWorld->addRigidBody(geo->getRigidBody());
 
+            GLuint id = scene.size()-m_constraints.size();
+            QString name = "geo" + QString::number(id);
+            geo->setName(name);
+            geo->setGeoID(id);
             scene.append(geo);
             break;
         }
@@ -98,7 +117,11 @@ void SceneView::addGeo(GLuint type,QVector3D pos,QVector3D rot,QVector3D scale,b
             collisionShapes.push_back(geo->getCollisionShape());
             m_dynamicsWorld->addRigidBody(geo->getRigidBody());
 
+            GLuint id = scene.size()-m_constraints.size();
+            QString name = "geo" + QString(id);
             scene.append(geo);
+            geo->setName(name);
+            geo->setGeoID(id);
             break;
         }
     }
@@ -131,6 +154,20 @@ void SceneView::setGravity(QVector3D gravity)
     m_dynamicsWorld->setGravity(qv3tobtv3(m_gravity));
 }
 
+void SceneView::setP2PCon(GLuint geo1, GLuint geo2)
+{
+    QVector3D geo1_pos = scene[geo1]->getModelPos();
+    QVector3D geo2_pos = scene[geo2]->getModelPos();
+    QVector3D geo3_pos = (geo1_pos+geo2_pos)/2;
+    Geometry* geo = new P2PCon(geo3_pos,geo1,geo2);
+
+    m_constraints.append(scene.size());
+    QString name = "p2p con" + QString::number(m_constraints.size());
+    geo->setName(name);
+    geo->setGeoID(-1);
+    scene.append(geo);
+}
+
 void SceneView::keyPressEvent(QKeyEvent *e)
 {
     if(e->key() == Qt::Key_Space)m_space = true;
@@ -140,6 +177,22 @@ void SceneView::keyPressEvent(QKeyEvent *e)
     if(e->key() == Qt::Key_W) m_mode = 0;
     if(e->key() == Qt::Key_E) m_mode = 1;
     if(e->key() == Qt::Key_R) m_mode = 2;
+
+//    //delete geometry
+//    if(e->key() == Qt::Key_Delete &&m_selected != 0)
+//    {
+//        //remove geometry from dynamics world
+//        btCollisionObject* obj = m_dynamicsWorld->getCollisionObjectArray()[m_selected];
+//        m_dynamicsWorld->removeCollisionObject(obj);
+//        collisionShapes.removeAtIndex(m_selected);
+
+//        //delete geometry
+//        delete scene[m_selected];
+
+//        scene[m_selected] = nullptr;
+
+//        m_selected = -1;
+//    }
 }
 
 void SceneView::keyReleaseEvent(QKeyEvent *e)
@@ -149,6 +202,7 @@ void SceneView::keyReleaseEvent(QKeyEvent *e)
 
 void SceneView::mousePressEvent(QMouseEvent *e)
 {
+
     //mouse position
     m_mousePosition = QVector2D(e->localPos());
 
@@ -179,6 +233,11 @@ void SceneView::mousePressEvent(QMouseEvent *e)
             GLuint i = 0;
             for(QVector<Geometry*>::iterator itr = scene.begin();itr != scene.end();itr++)
             {
+                if((*itr) == nullptr)
+                {
+                    i++;
+                    continue;
+                }
                 if((*itr)->getSelectable())
                 {
                     glPushName(i);
@@ -189,9 +248,9 @@ void SceneView::mousePressEvent(QMouseEvent *e)
             }
 
             GLint hit = glRenderMode(GL_RENDER);
-            if(m_selected > 0)scene[m_selected]->setSelected(0);
+            if(m_selected>0 && scene[m_selected]!=nullptr)scene[m_selected]->setSelected(0);
             m_selected = selectHit(hit,select_buffer);
-            if(m_selected > 0)scene[m_selected]->setSelected(1);
+            if(m_selected>0 && scene[m_selected]!=nullptr)scene[m_selected]->setSelected(1);
 
             emit clicked();
         }
@@ -274,6 +333,8 @@ void SceneView::mouseMoveEvent(QMouseEvent *e)
     //selected object transform
     if(m_space != true && m_selected_gizmo_axis != -1)
     {
+        if(scene[m_selected] == nullptr)return;
+
         switch(m_mode)
         {
             case 0: //translate
@@ -305,19 +366,35 @@ void SceneView::mouseMoveEvent(QMouseEvent *e)
             }
             case 1: //rotate
             {
-                QVector3D cam_right = camera.getRight() * diff.x() * 0.5;
-                QVector3D cam_up = camera.getUp() * diff.y() * 0.5;
+                //get rotation axis
                 QVector3D axis = {0,0,0};
                 axis[m_selected_gizmo_axis] = 1;
                 axis = scene[m_selected]->getModelQuaterion().rotatedVector(axis);
 
-                QVector3D raxis = {0,0,0};
-                raxis[(m_selected_gizmo_axis+1)%3] = 1;
-                GLfloat r_dis = QVector3D::dotProduct(cam_right,raxis);
-                GLfloat u_dis = QVector3D::dotProduct(cam_up,raxis);
-                GLfloat angle = r_dis + u_dis;
+                //get geomerty position in the screen space
+                QVector4D P = {0,0,0,1};
+                QMatrix4x4 modelm = scene[m_selected]->getModelMat();
+                QMatrix4x4 viewm = camera.getViewMat();
+                QMatrix4x4 projm = camera.getProjectionMat(m_width,m_height);
+                QVector4D Pc = projm*viewm*modelm*P;
+                QVector3D Pndc = {Pc.x(),Pc.y(),Pc.z()};
+                Pndc /= Pc.w();
+                QVector2D Ps = {(Pndc.x()+1)*m_width/2,(-Pndc.y()+1)*m_height/2};
+                QVector3D cam_rel_p = camera.getPos() - scene[m_selected]->getModelPos();
 
-                QQuaternion rot = QQuaternion::fromAxisAndAngle(axis,angle);
+                //get rotation angular
+                QVector2D p0,p1,p2;
+                p0 = m_mousePosition-diff-Ps;
+                p1 = {p0.y(),-p0.x()};
+                if(QVector3D::dotProduct(axis,cam_rel_p)> 0)p1 = {p0.y(),-p0.x()};
+                else p1 = {-p0.y(),p0.x()};
+                p2 = m_mousePosition - Ps;
+                p0.normalize();
+                p1.normalize();
+                p2.normalize();
+                GLfloat ang =  (p1.x()*p2.x()+p1.y()*p2.y()) * 100;
+
+                QQuaternion rot = QQuaternion::fromAxisAndAngle(axis,ang);
                 QQuaternion new_q = rot * scene[m_selected]->getModelQuaterion();
                 scene[m_selected]->setRot(new_q);
 
@@ -408,10 +485,11 @@ void SceneView::paintGL()
     //draw geometry
     for(QVector<Geometry*>::iterator itr = scene.begin();itr != scene.end();itr++)
     {
+        if((*itr) == nullptr)continue;
         (*itr)->drawGeo(camera.getProjectionMat(m_width,m_height),camera.getViewMat());
     }
 
-    //draw manip lines
+    //draw manip gizmos
     drawGizmos();
 
     //draw coordinate lines
@@ -514,41 +592,104 @@ void SceneView::sim()
 
 void SceneView::sim_init()
 {
-    //send geometry data to rigidbody
     for(int i=0;i<scene.size();i++)
     {
-        //keep initial position
-        scene[i]->setInitPos(scene[i]->getModelPos());
-        scene[i]->setInitRot(scene[i]->getModelQuaterion());
+        if(scene[i]==nullptr)continue;
 
-        btTransform trans;
-        trans.setOrigin(qv3tobtv3(scene[i]->getModelPos()));
-        trans.setRotation(qqtobtq(scene[i]->getModelQuaterion()));
+        if(scene[i]->getGeoId()>=0)
+        {
+            //keep initial position
+            scene[i]->setInitPos(scene[i]->getModelPos());
+            scene[i]->setInitRot(scene[i]->getModelQuaterion());
 
-        btCollisionObject* obj = m_dynamicsWorld->getCollisionObjectArray()[i];
-        btRigidBody* body = btRigidBody::upcast(obj);
-        btMotionState* mState = body->getMotionState();
-        btCollisionShape* colShape = body->getCollisionShape();
+            btTransform trans;
+            trans.setOrigin(qv3tobtv3(scene[i]->getModelPos()));
+            trans.setRotation(qqtobtq(scene[i]->getModelQuaterion()));
 
-        mState->setWorldTransform(trans);
-        colShape->setLocalScaling(qv3tobtv3(scene[i]->getModelScale()));
-        body->setMotionState(mState);
-        body->activate(true);
+             btRigidBody* body = scene[i]->getRigidBody();
+            btMotionState* mState = body->getMotionState();
+            btCollisionShape* colShape = body->getCollisionShape();
+
+            mState->setWorldTransform(trans);
+            colShape->setLocalScaling(qv3tobtv3(scene[i]->getModelScale()));
+            body->setMotionState(mState);
+            body->activate(true);
+        }
+        else
+        {
+            scene[i]->setInitPos(scene[i]->getModelPos());
+            scene[i]->setInitRot(scene[i]->getModelRot());
+
+            P2PCon* con = (P2PCon*)scene[i];
+
+            GLuint geo1,geo2;
+            geo1 = con->getGeo1Id();
+            geo2 = con->getGeo2Id();
+
+            QVector4D joint_pos = {con->getModelPos(),1};
+            QVector4D tmp;
+
+            QMatrix4x4 model_inv = scene[geo1]->getModelMat().inverted();
+            tmp = model_inv*joint_pos;
+            btVector3 geo_joint_local = {tmp.x(),tmp.y(),tmp.z()};
+            con->setInitGeo1Local(btv3toqv3(geo_joint_local));
+
+
+            QMatrix4x4 geo1_model_inv;
+            geo1_model_inv.setToIdentity();
+            geo1_model_inv.translate(scene[geo1]->getModelPos());
+            geo1_model_inv.rotate(scene[geo1]->getModelQuaterion());
+            tmp = geo1_model_inv.inverted()*joint_pos;
+            btVector3 geo_joint_geo1_local = {tmp.x(),tmp.y(),tmp.z()};
+
+
+
+            QMatrix4x4 geo2_model_inv;
+            geo2_model_inv.setToIdentity();
+            geo2_model_inv.translate(scene[geo2]->getModelPos());
+            geo2_model_inv.rotate(scene[geo2]->getModelQuaterion());
+            tmp = geo2_model_inv.inverted()*joint_pos;
+            btVector3 geo_joint_geo2_local = {tmp.x(),tmp.y(),tmp.z()};
+
+            btRigidBody* body1 = scene[geo1]->getRigidBody();
+            btRigidBody* body2 = scene[geo2]->getRigidBody();
+
+            btPoint2PointConstraint *constraint = new btPoint2PointConstraint(*body1, *body2,
+                                                                              geo_joint_geo1_local,
+                                                                              geo_joint_geo2_local);
+            m_dynamicsWorld->addConstraint(constraint);
+        }
+
     }
 }
 
 void SceneView::sim_apply()
 {
     //apply simulation data to geometry
-    for(int i=0;i<m_dynamicsWorld->getNumCollisionObjects();i++)
+    for(int i=0;i<scene.size();i++)
     {
-        btCollisionObject* obj = m_dynamicsWorld->getCollisionObjectArray()[i];
-        btRigidBody* body = btRigidBody::upcast(obj);
-        btTransform trans;
-        body->getMotionState()->getWorldTransform(trans);
+        if(scene[i]==nullptr)continue;
 
-        scene[i]->setPos(btv3toqv3(trans.getOrigin()));
-        scene[i]->setRot(btqtoqq(trans.getRotation()));
+        if(scene[i]->getGeoId()>=0)
+        {
+            btRigidBody* body = scene[i]->getRigidBody();
+            btTransform trans;
+            body->getMotionState()->getWorldTransform(trans);
+
+            scene[i]->setPos(btv3toqv3(trans.getOrigin()));
+            scene[i]->setRot(btqtoqq(trans.getRotation()));
+        }
+        else
+        {
+            P2PCon* con = (P2PCon*)scene[i];
+            GLuint geo1 = con->getGeo1Id();
+
+            QMatrix4x4 geo1_model = scene[geo1]->getModelMat();
+            QVector4D new_pos = {con->getInitGeo1Local(),1};
+            new_pos = geo1_model*new_pos;
+
+            con->setPos(new_pos.toVector3D());
+        }
     }
 }
 
@@ -557,23 +698,35 @@ void SceneView::sim_reset()
     //reset simulaton
     for(int i=0;i<scene.size();i++)
     {
+        if(scene[i]==nullptr)continue;
+
         scene[i]->setPos(scene[i]->getInitModelPos());
         scene[i]->setRot(scene[i]->getInitModelQuaternion());
 
-        btCollisionObject* obj = m_dynamicsWorld->getCollisionObjectArray()[i];
-        btRigidBody* body = btRigidBody::upcast(obj);
-        btMotionState* mState = body->getMotionState();
+        if(scene[i]->getGeoId()>=0)
+        {
+            btRigidBody* body = scene[i]->getRigidBody();
+            btMotionState* mState = body->getMotionState();
 
-        body->clearForces();
-        btVector3 zeroVec = {0.0,0.0,0.0};
-        body->setLinearVelocity(zeroVec);
-        body->setAngularVelocity(zeroVec);
+            body->clearForces();
+            btVector3 zeroVec = {0.0,0.0,0.0};
+            body->setLinearVelocity(zeroVec);
+            body->setAngularVelocity(zeroVec);
 
-        btTransform initTrans;
-        initTrans.setOrigin(qv3tobtv3(scene[i]->getInitModelPos()));
-        initTrans.setRotation(qqtobtq(scene[i]->getInitModelQuaternion()));
+            btTransform initTrans;
+            initTrans.setOrigin(qv3tobtv3(scene[i]->getInitModelPos()));
+            initTrans.setRotation(qqtobtq(scene[i]->getInitModelQuaternion()));
 
-        mState->setWorldTransform(initTrans);
-        body->setMotionState(mState);
+            mState->setWorldTransform(initTrans);
+            body->setMotionState(mState);
+        }
+    }
+
+    //delete constraint
+    for(int i=m_dynamicsWorld->getNumConstraints()-1;i>=0;i--)
+    {
+        btTypedConstraint* constraint = m_dynamicsWorld->getConstraint(i);
+        m_dynamicsWorld->removeConstraint(constraint);
+        delete constraint;
     }
 }

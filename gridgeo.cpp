@@ -55,11 +55,12 @@ GridGeo::GridGeo(QVector3D pos,QVector3D rot,QVector3D scale,bool selectable,boo
     m_motionState = new btDefaultMotionState(initTransform);
 
     //mass and inertia
+    m_volume = 2*2*0.1;
     btScalar mass = 0.0;
     btVector3 localInertia = {0.0,0.0,0.0};
     if(staticity == false)
     {
-        mass = m_density * 2*2*0.1;
+        mass = m_density * m_volume;
         m_colShape->calculateLocalInertia(mass,localInertia);
     }
 
@@ -110,12 +111,4 @@ void GridGeo::drawGeo(QMatrix4x4 projection, QMatrix4x4 view)
     m_ibo.release();
 
     m_program.release();
-}
-
-void GridGeo::setDensity(GLfloat density)
-{
-    m_density = density;
-    btScalar mass = m_density * 2*2*0.1;
-    m_mass = mass;
-    m_body->setMassProps(mass,getInertia());
 }

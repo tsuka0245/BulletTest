@@ -22,6 +22,24 @@ Geometry::~Geometry()
     delete m_body;
 }
 
+void Geometry::setScale(QVector3D scale)
+{
+    //set volume  to the initial
+    m_volume = m_volume/(m_scale.x()*m_scale.y()*m_scale.z());
+
+    m_scale = scale;
+    m_volume = m_volume*scale.x()*scale.y()*scale.z();
+    m_mass = m_density * m_volume;
+    if(m_body!=nullptr)m_body->setMassProps(m_mass,getInertia());
+}
+
+void Geometry::setDensity(GLfloat density)
+{
+    m_density = density;
+    m_mass = density * m_volume;
+    if(m_body!=nullptr)m_body->setMassProps(m_mass,getInertia());
+}
+
 void Geometry::setStaticity(bool staticity)
 {
     m_static = staticity;
@@ -47,7 +65,7 @@ QMatrix4x4 Geometry::getModelMat()
 
 btVector3 Geometry::getInertia()
 {
-    btVector3 localInertia;
+    btVector3 localInertia ={0,0,0};
     m_colShape->calculateLocalInertia(m_mass,localInertia);
     return localInertia;
 }

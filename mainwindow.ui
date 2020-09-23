@@ -153,6 +153,16 @@
         </widget>
        </widget>
       </item>
+      <item row="0" column="1" rowspan="2">
+       <widget class="SceneView" name="viewer">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+       </widget>
+      </item>
       <item row="1" column="2">
        <widget class="QGroupBox" name="SimGroup">
         <property name="sizePolicy">
@@ -204,16 +214,6 @@
         </widget>
        </widget>
       </item>
-      <item row="0" column="1" rowspan="2">
-       <widget class="SceneView" name="viewer">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-       </widget>
-      </item>
       <item row="0" column="2">
        <widget class="QTabWidget" name="tabWidget">
         <property name="sizePolicy">
@@ -229,7 +229,7 @@
          </size>
         </property>
         <property name="currentIndex">
-         <number>0</number>
+         <number>1</number>
         </property>
         <widget class="QWidget" name="attribute">
          <attribute name="title">
@@ -238,8 +238,8 @@
          <widget class="QGroupBox" name="groupBox">
           <property name="geometry">
            <rect>
-            <x>9</x>
-            <y>9</y>
+            <x>10</x>
+            <y>100</y>
             <width>331</width>
             <height>171</height>
            </rect>
@@ -399,7 +399,7 @@
           <property name="geometry">
            <rect>
             <x>10</x>
-            <y>190</y>
+            <y>300</y>
             <width>331</width>
             <height>181</height>
            </rect>
@@ -506,11 +506,136 @@
            </layout>
           </widget>
          </widget>
+         <widget class="QGroupBox" name="groupBox_4">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>10</y>
+            <width>331</width>
+            <height>81</height>
+           </rect>
+          </property>
+          <property name="title">
+           <string>GroupBox</string>
+          </property>
+          <widget class="QWidget" name="gridLayoutWidget_4">
+           <property name="geometry">
+            <rect>
+             <x>10</x>
+             <y>19</y>
+             <width>311</width>
+             <height>51</height>
+            </rect>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_6">
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_3">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>80</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>Name</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QLineEdit" name="geo_name"/>
+            </item>
+           </layout>
+          </widget>
+         </widget>
         </widget>
         <widget class="QWidget" name="bullet">
          <attribute name="title">
           <string>Tab 2</string>
          </attribute>
+         <widget class="QGroupBox" name="groupBox_3">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>10</y>
+            <width>331</width>
+            <height>141</height>
+           </rect>
+          </property>
+          <property name="title">
+           <string>Point to Point Constraint</string>
+          </property>
+          <widget class="QWidget" name="gridLayoutWidget_3">
+           <property name="geometry">
+            <rect>
+             <x>10</x>
+             <y>20</y>
+             <width>311</width>
+             <height>111</height>
+            </rect>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_5">
+            <item row="0" column="1">
+             <widget class="QLabel" name="label">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>Geo 1 id</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="3">
+             <widget class="QPushButton" name="p2p_con_select_geo1">
+              <property name="text">
+               <string>Select</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="2">
+             <widget class="QLineEdit" name="p2p_con_geo2"/>
+            </item>
+            <item row="1" column="1">
+             <widget class="QLabel" name="label_2">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>Geo 2 id</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="3">
+             <widget class="QPushButton" name="p2p_con_select_geo2">
+              <property name="text">
+               <string>Select</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="2">
+             <widget class="QLineEdit" name="p2p_con_geo1"/>
+            </item>
+            <item row="2" column="3">
+             <widget class="QPushButton" name="p2p_con_apply">
+              <property name="text">
+               <string>Apply</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </widget>
         </widget>
        </widget>
       </item>

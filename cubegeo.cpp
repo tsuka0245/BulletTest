@@ -89,11 +89,12 @@ CubeGeo::CubeGeo(QVector3D pos,QVector3D rot,QVector3D scale,bool selectable,boo
     m_motionState = new btDefaultMotionState(initTransform);
 
     //mass and inertia
+    m_volume = 8.0;
     btScalar mass = 0.0;
     btVector3 localInertia = {0.0,0.0,0.0};
     if(staticity == false)
     {
-        mass = m_density * 8;
+        mass = m_density * m_volume;
         m_colShape->calculateLocalInertia(mass,localInertia);
     }
 
@@ -150,12 +151,4 @@ void CubeGeo::drawGeo(QMatrix4x4 projection, QMatrix4x4 view)
     m_texture->release();
 
     m_program.release();
-}
-
-void CubeGeo::setDensity(GLfloat density)
-{
-    m_density = density;
-    btScalar mass = m_density * 8;
-    m_mass = mass;
-    m_body->setMassProps(mass,getInertia());
 }

@@ -9,6 +9,8 @@
 #include <QKeyEvent>
 #include <QBasicTimer>
 #include <QVector>
+#include <QVector3D>
+#include <QVector4D>
 #include <QMatrix4x4>
 #include <QQuaternion>
 
@@ -23,6 +25,8 @@
 #include "gizmotranslate.h"
 #include "gizmorotate.h"
 #include "gizmoscale.h"
+
+#include "p2pcon.h"
 
 #include "qtbtconvert.h"
 
@@ -45,12 +49,14 @@ public:
     int getSelected(){return m_selected;}
 
     //selected geometry data
+    void setSelectedName(GLint id, QString name){scene[id]->setName(name);}
     void setSelectedPos(GLint id, QVector3D pos){scene[id]->setPos(pos);}
     void setSelectedRot(GLint id, QVector3D rot){scene[id]->setRot(rot);}
     void setSelectedScale(GLint id, QVector3D scale){scene[id]->setScale(scale);}
     void setSelectedDensity(GLint id, GLfloat density){scene[id]->setDensity(density);}
     void setSelectedStaticity(GLuint id, bool staticity){scene[id]->setStaticity(staticity);}
 
+    QString getSelectedName(GLint id){return scene[id]->getName();}
     QVector3D getSelectedPos(GLint id){return scene[id]->getModelPos();}
     QVector3D getSelectedRot(GLint id){return scene[id]->getModelRot();}
     QVector3D getSelectedScale(GLint id){return scene[id]->getModelScale();}
@@ -64,6 +70,9 @@ public:
     void setSimulate(bool sim){m_simulate = sim;}
     void setGravity(QVector3D gravity);
     QVector3D getGravity(){return m_gravity;}
+
+    //constraint
+    void setP2PCon(GLuint geo1, GLuint geo2);
 
     void sim_init();
     void sim_reset();
@@ -132,6 +141,9 @@ private:
     btDiscreteDynamicsWorld* m_dynamicsWorld = nullptr;
 
     btAlignedObjectArray<btCollisionShape*> collisionShapes;
+
+    //constraint
+    QVector<GLuint> m_constraints;
 
     QVector3D m_gravity = {0.0,-9.8,0.0};
 

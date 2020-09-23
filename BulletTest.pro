@@ -28,6 +28,7 @@ SOURCES += \
     gridgeo.cpp \
     main.cpp \
     mainwindow.cpp \
+    p2pcon.cpp \
     planegeo.cpp \
     qtbtconvert.cpp \
     sceneview.cpp \
@@ -44,6 +45,7 @@ HEADERS += \
     gizmotranslate.h \
     gridgeo.h \
     mainwindow.h \
+    p2pcon.h \
     planegeo.h \
     qtbtconvert.h \
     sceneview.h \

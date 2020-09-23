@@ -1,14 +1,14 @@
-#include "spheregeo.h"
+#include "p2pcon.h"
 
-SphereGeo::SphereGeo(QVector3D pos,QVector3D rot,QVector3D scale,bool selectable,bool staticity)
+P2PCon::P2PCon(QVector3D pos,GLuint geo1,GLuint geo2)
 {
     //transform
     setPos(pos);
-    setRot(rot);
-    setScale(scale);
 
-    m_selectable = selectable;
-    m_static = staticity;
+    m_geo1 = geo1;
+    m_geo2 = geo2;
+    m_selectable = true;
+    m_static = false;
 
     //initialize shader
     m_vshader_path = ":/v_grid.glsl";
@@ -29,6 +29,7 @@ SphereGeo::SphereGeo(QVector3D pos,QVector3D rot,QVector3D scale,bool selectable
            pos.setX(qSin(qDegreesToRadians(phi))*qCos(qDegreesToRadians(theta)));
            pos.setY(qCos(qDegreesToRadians(phi)));
            pos.setZ(qSin(qDegreesToRadians(phi))*qSin(qDegreesToRadians(theta)));
+           pos *= 0.1;
            m_vdata.append({pos,QVector2D(1.0,1.0)});
            theta += 360/stn;
        }
@@ -58,43 +59,13 @@ SphereGeo::SphereGeo(QVector3D pos,QVector3D rot,QVector3D scale,bool selectable
     m_ibo.bind();
     m_ibo.allocate(m_indices.begin(),m_indices.size()*sizeof(GLuint));
     m_ibo.release();
-
-
-    //collision shape
-    btVector3 tmp0[1];
-    btScalar tmp1[1];
-    tmp0[0] = {0,0,0};
-    tmp1[0] = 1.0;
-    m_colShape = new btMultiSphereShape(tmp0,tmp1,1);
-    m_colShape->setLocalScaling(qv3tobtv3(getModelScale()));
-
-    //motion state
-    btTransform initTransform;
-    initTransform.setIdentity();
-    initTransform.setOrigin(qv3tobtv3(getModelPos()));
-    initTransform.setRotation(qqtobtq(getModelQuaterion()));
-    m_motionState = new btDefaultMotionState(initTransform);
-
-    //mass and inertia
-    m_volume = 4*M_PI/3;
-    btScalar mass = 0.0;
-    btVector3 localInertia = {0.0,0.0,0.0};
-    if(staticity == false)
-    {
-        mass = m_density * m_volume;
-        m_colShape->calculateLocalInertia(mass,localInertia);
-    }
-
-    //rigid body
-    btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,m_motionState,m_colShape,localInertia);
-    m_body = new btRigidBody(rbInfo);
 }
 
-SphereGeo::~SphereGeo()
+P2PCon::~P2PCon()
 {
 }
 
-void SphereGeo::drawGeo(QMatrix4x4 projection, QMatrix4x4 view)
+void P2PCon::drawGeo(QMatrix4x4 projection, QMatrix4x4 view)
 {
     //bind shader program
     m_program.bind();

@@ -39,6 +39,7 @@ void mainwindow::show_attrib()
 {
     GLint geo_id = ui->viewer->getSelected();
     if(geo_id <= 0)return;
+    QString name = ui->viewer->getSelectedName(geo_id);
     GLfloat pos_x = ui->viewer->getSelectedPos(geo_id).x();
     GLfloat pos_y = ui->viewer->getSelectedPos(geo_id).y();
     GLfloat pos_z = ui->viewer->getSelectedPos(geo_id).z();
@@ -51,6 +52,7 @@ void mainwindow::show_attrib()
     GLfloat density = ui->viewer->getSelectedDensity(geo_id);
     bool staticity = ui->viewer->getSelectedStaticity(geo_id);
 
+    ui->geo_name->setText(name);
     ui->pos_x->setText(QString::number(pos_x));
     ui->pos_y->setText(QString::number(pos_y));
     ui->pos_z->setText(QString::number(pos_z));
@@ -62,6 +64,28 @@ void mainwindow::show_attrib()
     ui->scale_z->setText(QString::number(scale_z));
     ui->density->setText(QString::number(density));
     ui->check_static->setChecked(staticity);
+
+    if(m_constraint1 == true)
+    {
+        GLint num = ui->viewer->getSelected();
+        ui->p2p_con_geo1->setText(QString::number(num));
+        m_constraint1 = false;
+    }
+    if(m_constraint2 == true)
+    {
+        GLuint num = ui->viewer->getSelected();
+        ui->p2p_con_geo2->setText(QString::number(num));
+        m_constraint2 = false;
+    }
+}
+
+void mainwindow::on_geo_name_editingFinished()
+{
+    GLint geo_id = ui->viewer->getSelected();
+    if(geo_id <= 0)return;
+
+    QString new_name = ui->geo_name->text();
+    ui->viewer->setSelectedName(geo_id,new_name);
 }
 
 void mainwindow::on_pos_x_editingFinished()
@@ -233,6 +257,7 @@ void mainwindow::on_Run_clicked()
     ui->AddGrid->setEnabled(false);
     ui->AddSphere->setEnabled(false);
     ui->AddGoal->setEnabled(false);
+    ui->geo_name->setEnabled(false);
     ui->pos_x->setEnabled(false);
     ui->pos_y->setEnabled(false);
     ui->pos_z->setEnabled(false);
@@ -257,6 +282,7 @@ void mainwindow::on_Stop_clicked()
     ui->AddGrid->setEnabled(true);
     ui->AddSphere->setEnabled(true);
     ui->AddGoal->setEnabled(true);
+    ui->geo_name->setEnabled(true);
     ui->pos_x->setEnabled(true);
     ui->pos_y->setEnabled(true);
     ui->pos_z->setEnabled(true);
@@ -273,8 +299,23 @@ void mainwindow::on_Stop_clicked()
     ui->viewer->sim_reset();
 }
 
+void mainwindow::on_p2p_con_select_geo1_clicked()
+{
+    ui->viewer->setMode(3);
+    m_constraint1 = true;
+}
 
+void mainwindow::on_p2p_con_select_geo2_clicked()
+{
+    ui->viewer->setMode(3);
+    m_constraint2 = true;
+}
 
+void mainwindow::on_p2p_con_apply_clicked()
+{
+    GLuint geo1 = ui->p2p_con_geo1->text().toUInt();
+    GLuint geo2 = ui->p2p_con_geo2->text().toUInt();
 
+    ui->viewer->setP2PCon(geo1,geo2);
 
-
+}

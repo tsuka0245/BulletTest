@@ -11,5 +11,5 @@ varying vec2 v_uv;
 void main()
 {
     gl_FragColor = texture2D(texture, v_uv);
-    if(selected == 1)gl_FragColor += vec4(vec3(0.3),0.0);
+    if(selected == true)gl_FragColor += vec4(vec3(0.3),0.0);
 }
