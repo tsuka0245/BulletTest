@@ -10,5 +10,7 @@
         <file>f_gizmo.glsl</file>
         <file>v_grid.glsl</file>
         <file>f_grid.glsl</file>
+        <file>f_sphere.glsl</file>
+        <file>v_sphere.glsl</file>
     </qresource>
 </RCC>

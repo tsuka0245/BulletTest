@@ -11,25 +11,31 @@ SphereGeo::SphereGeo(QVector3D pos,QVector3D rot,QVector3D scale,bool selectable
     m_static = staticity;
 
     //initialize shader
-    m_vshader_path = ":/v_grid.glsl";
-    m_fshader_path = ":/f_grid.glsl";
+    m_vshader_path = ":/v_sphere.glsl";
+    m_fshader_path = ":/f_sphere.glsl";
     initShader();
+
+    //initialize texture
+    m_texture_path = ":/earth.jpg";
+    initTexture();
 
     //initialize vertices and uv
     m_vdata.clear();
     // Vertex data
     int stn = 12;
-    int sln = 6;
+    int sln = 12;
     GLfloat phi = 0, theta = 0;
     for(int i=0;i<=sln;i++)
     {
+        theta = 0;
        for(int j=0;j<=stn;j++)
        {
            QVector3D pos;
            pos.setX(qSin(qDegreesToRadians(phi))*qCos(qDegreesToRadians(theta)));
            pos.setY(qCos(qDegreesToRadians(phi)));
            pos.setZ(qSin(qDegreesToRadians(phi))*qSin(qDegreesToRadians(theta)));
-           m_vdata.append({pos,QVector2D(1.0,1.0)});
+           m_vdata.append({pos,QVector2D(1-GLfloat(theta/360),(qCos(qDegreesToRadians(phi))+1)*0.5)});
+           qDebug() << theta << ":" << phi;
            theta += 360/stn;
        }
        phi += 180/sln;
@@ -99,10 +105,14 @@ void SphereGeo::drawGeo(QMatrix4x4 projection, QMatrix4x4 view)
     //bind shader program
     m_program.bind();
 
+    //bind texture
+    m_texture->bind();
+
     //send data to shader
     m_program.setUniformValue("proj_mat",projection);
     m_program.setUniformValue("view_mat",view);
     m_program.setUniformValue("model_mat",getModelMat());
+    m_program.setUniformValue("texture",0);
     m_program.setUniformValue("selected",m_selected);
 
     //bind buffer
@@ -130,6 +140,8 @@ void SphereGeo::drawGeo(QMatrix4x4 projection, QMatrix4x4 view)
 
     m_vbo.release();
     m_ibo.release();
+
+    m_texture->release();
 
     m_program.release();
 }

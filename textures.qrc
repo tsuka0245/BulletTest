@@ -1,5 +1,7 @@
 <RCC>
     <qresource prefix="/">
         <file>cube.png</file>
+        <file>earth.jpg</file>
+        <file>CslEXIS.jpg</file>
     </qresource>
 </RCC>

@@ -19,7 +19,6 @@ private slots:
     void on_AddBox_clicked();
     void on_AddGrid_clicked();
     void on_AddSphere_clicked();
-    void on_AddGoal_clicked();
 
     void show_attrib();
     void on_geo_name_editingFinished();

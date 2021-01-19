@@ -77,19 +77,6 @@
         <string>Sphere</string>
        </property>
       </widget>
-      <widget class="QPushButton" name="AddGoal">
-       <property name="geometry">
-        <rect>
-         <x>250</x>
-         <y>20</y>
-         <width>71</width>
-         <height>71</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Goal</string>
-       </property>
-      </widget>
      </widget>
     </item>
     <item>
@@ -675,7 +662,6 @@
   <tabstop>AddBox</tabstop>
   <tabstop>AddGrid</tabstop>
   <tabstop>AddSphere</tabstop>
-  <tabstop>AddGoal</tabstop>
   <tabstop>tabWidget</tabstop>
  </tabstops>
  <resources/>

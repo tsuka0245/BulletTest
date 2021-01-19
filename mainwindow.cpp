@@ -30,11 +30,6 @@ void mainwindow::on_AddSphere_clicked()
     ui->viewer->addGeo(3,{0,1,0},{0,0,0},{1,1,1},1,0);
 }
 
-void mainwindow::on_AddGoal_clicked()
-{
-
-}
-
 void mainwindow::show_attrib()
 {
     GLint geo_id = ui->viewer->getSelected();
@@ -247,6 +242,7 @@ void mainwindow::on_check_static_stateChanged(int arg1)
 
     if(arg1 == 0) ui->viewer->setSelectedStaticity(geo_id,false);
     else ui->viewer->setSelectedStaticity(geo_id,true);
+
 }
 
 void mainwindow::on_Run_clicked()
@@ -256,7 +252,6 @@ void mainwindow::on_Run_clicked()
     ui->AddBox->setEnabled(false);
     ui->AddGrid->setEnabled(false);
     ui->AddSphere->setEnabled(false);
-    ui->AddGoal->setEnabled(false);
     ui->geo_name->setEnabled(false);
     ui->pos_x->setEnabled(false);
     ui->pos_y->setEnabled(false);
@@ -281,7 +276,6 @@ void mainwindow::on_Stop_clicked()
     ui->AddBox->setEnabled(true);
     ui->AddGrid->setEnabled(true);
     ui->AddSphere->setEnabled(true);
-    ui->AddGoal->setEnabled(true);
     ui->geo_name->setEnabled(true);
     ui->pos_x->setEnabled(true);
     ui->pos_y->setEnabled(true);
